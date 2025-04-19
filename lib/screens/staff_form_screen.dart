@@ -98,6 +98,15 @@ class _AddStaffScreenState extends State<AddStaffScreen> {
                   label: 'Email',
                   icon: Icons.email,
                   keyboardType: TextInputType.emailAddress,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Email is required';
+                    }
+                    if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
+                      return 'Enter a valid email address';
+                    }
+                    return null;
+                  },
                 ),
                 const SizedBox(height: 16),
                 _buildFormField(
@@ -168,6 +177,21 @@ class _AddStaffScreenState extends State<AddStaffScreen> {
       });
 
       try {
+        // Check if a staff with this email already exists
+        final existingStaff = await _dbService.getStaffByEmail(_emailController.text);
+        if (existingStaff != null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('A staff member with this email already exists'),
+              backgroundColor: Colors.red,
+            ),
+          );
+          setState(() {
+            _isSaving = false;
+          });
+          return;
+        }
+        
         final joinDate = DateTime.now();
         
         final newStaff = Staff(
@@ -309,6 +333,15 @@ class _EditStaffScreenState extends State<EditStaffScreen> {
                   label: 'Email',
                   icon: Icons.email,
                   keyboardType: TextInputType.emailAddress,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Email is required';
+                    }
+                    if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
+                      return 'Enter a valid email address';
+                    }
+                    return null;
+                  },
                 ),
                 const SizedBox(height: 16),
                 _buildFormField(
@@ -331,10 +364,7 @@ class _EditStaffScreenState extends State<EditStaffScreen> {
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
-                  onPressed: () {
-                    Navigator.pop(context);
-                    _deleteStaff();
-                  },
+                  onPressed: _deleteStaff,
                 ),
               ],
             ),
@@ -398,20 +428,43 @@ class _EditStaffScreenState extends State<EditStaffScreen> {
       });
 
       try {
-        // Update staff
-        widget.staff.name = _nameController.text;
-        widget.staff.position = _positionController.text;
-        widget.staff.department = _departmentController.text;
-        widget.staff.email = _emailController.text;
-        widget.staff.phone = _phoneController.text;
+        // Check if a staff with this email already exists (and it's not the current staff)
+        if (_emailController.text != widget.staff.email) {
+          final existingStaff = await _dbService.getStaffByEmail(_emailController.text);
+          if (existingStaff != null) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('A staff member with this email already exists'),
+                backgroundColor: Colors.red,
+              ),
+            );
+            setState(() {
+              _isSaving = false;
+            });
+            return;
+          }
+        }
         
-        await _dbService.updateStaff(widget.staff);
+        final updatedStaff = Staff(
+          serverId: widget.staff.serverId,
+          name: _nameController.text,
+          position: _positionController.text,
+          department: _departmentController.text,
+          email: _emailController.text,
+          phone: _phoneController.text,
+          joinDate: widget.staff.joinDate,
+          syncStatus: widget.staff.syncStatus,
+        );
+        
+        // Set the ID to maintain the same record
+        updatedStaff.id = widget.staff.id;
+        
+        await _dbService.updateStaff(updatedStaff);
         
         if (_dbService.isOnline) {
           await _syncService.syncData();
         }
         
-        // Return true to indicate success
         Navigator.pop(context, true);
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -428,6 +481,8 @@ class _EditStaffScreenState extends State<EditStaffScreen> {
   }
   
   Future<void> _deleteStaff() async {
+    if (!mounted) return;
+    
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -510,19 +565,23 @@ class _EditStaffScreenState extends State<EditStaffScreen> {
       try {
         await _dbService.deleteStaff(widget.staff.id);
         
-        if (_dbService.isOnline) {
+        if (mounted && _dbService.isOnline) {
           await _syncService.syncData();
         }
         
         // Return true to indicate success
-        Navigator.pop(context, true);
+        if (mounted) {
+          Navigator.pop(context, true);
+        }
       } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error deleting staff: $e'),
-            backgroundColor: Colors.red,
-          ),
-        );
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Error deleting staff: $e'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
       }
     }
   }

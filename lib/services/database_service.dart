@@ -69,6 +69,13 @@ class DatabaseService {
         .then((staffs) => staffs.where((staff) => staff.serverId == serverId).firstOrNull);
   }
 
+  Future<Staff?> getStaffByEmail(String email) async {
+    return await _isar.staffs
+        .where()
+        .emailEqualTo(email)
+        .findFirst();
+  }
+
   Future<int> saveStaff(Staff staff) async {
     // Always mark new staff as needing sync, since APIs are not yet implemented
     staff.syncStatus = SyncStatus.created;

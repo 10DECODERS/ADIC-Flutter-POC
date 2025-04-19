@@ -225,9 +225,8 @@ class _StaffScreenState extends State<StaffScreen> {
                           ],
                         ),
                       )
-                    : ListView.separated(
+                    : ListView.builder(
                         itemCount: _filteredStaffList.length,
-                        separatorBuilder: (context, index) => const Divider(height: 1),
                         padding: const EdgeInsets.only(top: 8),
                         itemBuilder: (context, index) {
                           final staff = _filteredStaffList[index];
@@ -483,29 +482,6 @@ class _StaffScreenState extends State<StaffScreen> {
             ),
             
             const SizedBox(height: 14),
-            
-            // Delete button
-            TextButton.icon(
-              icon: const Icon(Icons.delete, color: Colors.red, size: 18),
-              label: const Text(
-                'Delete Staff Member',
-                style: TextStyle(
-                  color: Colors.red,
-                  fontSize: 14,
-                ),
-              ),
-              onPressed: () async {
-                Navigator.pop(context);
-                final result = await Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => EditStaffScreen(staff: staff)),
-                );
-                
-                if (result == true) {
-                  _loadStaff();
-                }
-              },
-            ),
             
             // Bottom handle
             Container(

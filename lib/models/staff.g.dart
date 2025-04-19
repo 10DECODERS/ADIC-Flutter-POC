@@ -68,13 +68,26 @@ const StaffSchema = CollectionSchema(
     r'serverId': IndexSchema(
       id: -7950187970872907662,
       name: r'serverId',
-      unique: true,
+      unique: false,
       replace: false,
       properties: [
         IndexPropertySchema(
           name: r'serverId',
           type: IndexType.value,
           caseSensitive: false,
+        )
+      ],
+    ),
+    r'email': IndexSchema(
+      id: -26095440403582047,
+      name: r'email',
+      unique: true,
+      replace: false,
+      properties: [
+        IndexPropertySchema(
+          name: r'email',
+          type: IndexType.hash,
+          caseSensitive: true,
         )
       ],
     )
@@ -194,56 +207,56 @@ void _staffAttach(IsarCollection<dynamic> col, Id id, Staff object) {
 }
 
 extension StaffByIndex on IsarCollection<Staff> {
-  Future<Staff?> getByServerId(int? serverId) {
-    return getByIndex(r'serverId', [serverId]);
+  Future<Staff?> getByEmail(String email) {
+    return getByIndex(r'email', [email]);
   }
 
-  Staff? getByServerIdSync(int? serverId) {
-    return getByIndexSync(r'serverId', [serverId]);
+  Staff? getByEmailSync(String email) {
+    return getByIndexSync(r'email', [email]);
   }
 
-  Future<bool> deleteByServerId(int? serverId) {
-    return deleteByIndex(r'serverId', [serverId]);
+  Future<bool> deleteByEmail(String email) {
+    return deleteByIndex(r'email', [email]);
   }
 
-  bool deleteByServerIdSync(int? serverId) {
-    return deleteByIndexSync(r'serverId', [serverId]);
+  bool deleteByEmailSync(String email) {
+    return deleteByIndexSync(r'email', [email]);
   }
 
-  Future<List<Staff?>> getAllByServerId(List<int?> serverIdValues) {
-    final values = serverIdValues.map((e) => [e]).toList();
-    return getAllByIndex(r'serverId', values);
+  Future<List<Staff?>> getAllByEmail(List<String> emailValues) {
+    final values = emailValues.map((e) => [e]).toList();
+    return getAllByIndex(r'email', values);
   }
 
-  List<Staff?> getAllByServerIdSync(List<int?> serverIdValues) {
-    final values = serverIdValues.map((e) => [e]).toList();
-    return getAllByIndexSync(r'serverId', values);
+  List<Staff?> getAllByEmailSync(List<String> emailValues) {
+    final values = emailValues.map((e) => [e]).toList();
+    return getAllByIndexSync(r'email', values);
   }
 
-  Future<int> deleteAllByServerId(List<int?> serverIdValues) {
-    final values = serverIdValues.map((e) => [e]).toList();
-    return deleteAllByIndex(r'serverId', values);
+  Future<int> deleteAllByEmail(List<String> emailValues) {
+    final values = emailValues.map((e) => [e]).toList();
+    return deleteAllByIndex(r'email', values);
   }
 
-  int deleteAllByServerIdSync(List<int?> serverIdValues) {
-    final values = serverIdValues.map((e) => [e]).toList();
-    return deleteAllByIndexSync(r'serverId', values);
+  int deleteAllByEmailSync(List<String> emailValues) {
+    final values = emailValues.map((e) => [e]).toList();
+    return deleteAllByIndexSync(r'email', values);
   }
 
-  Future<Id> putByServerId(Staff object) {
-    return putByIndex(r'serverId', object);
+  Future<Id> putByEmail(Staff object) {
+    return putByIndex(r'email', object);
   }
 
-  Id putByServerIdSync(Staff object, {bool saveLinks = true}) {
-    return putByIndexSync(r'serverId', object, saveLinks: saveLinks);
+  Id putByEmailSync(Staff object, {bool saveLinks = true}) {
+    return putByIndexSync(r'email', object, saveLinks: saveLinks);
   }
 
-  Future<List<Id>> putAllByServerId(List<Staff> objects) {
-    return putAllByIndex(r'serverId', objects);
+  Future<List<Id>> putAllByEmail(List<Staff> objects) {
+    return putAllByIndex(r'email', objects);
   }
 
-  List<Id> putAllByServerIdSync(List<Staff> objects, {bool saveLinks = true}) {
-    return putAllByIndexSync(r'serverId', objects, saveLinks: saveLinks);
+  List<Id> putAllByEmailSync(List<Staff> objects, {bool saveLinks = true}) {
+    return putAllByIndexSync(r'email', objects, saveLinks: saveLinks);
   }
 }
 
@@ -435,6 +448,49 @@ extension StaffQueryWhere on QueryBuilder<Staff, Staff, QWhereClause> {
         upper: [upperServerId],
         includeUpper: includeUpper,
       ));
+    });
+  }
+
+  QueryBuilder<Staff, Staff, QAfterWhereClause> emailEqualTo(String email) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IndexWhereClause.equalTo(
+        indexName: r'email',
+        value: [email],
+      ));
+    });
+  }
+
+  QueryBuilder<Staff, Staff, QAfterWhereClause> emailNotEqualTo(String email) {
+    return QueryBuilder.apply(this, (query) {
+      if (query.whereSort == Sort.asc) {
+        return query
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'email',
+              lower: [],
+              upper: [email],
+              includeUpper: false,
+            ))
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'email',
+              lower: [email],
+              includeLower: false,
+              upper: [],
+            ));
+      } else {
+        return query
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'email',
+              lower: [email],
+              includeLower: false,
+              upper: [],
+            ))
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'email',
+              lower: [],
+              upper: [email],
+              includeUpper: false,
+            ));
+      }
     });
   }
 }

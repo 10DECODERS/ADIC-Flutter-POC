@@ -6,13 +6,16 @@ part 'staff.g.dart';
 class Staff {
   Id id = Isar.autoIncrement;
   
-  @Index(unique: true, replace: true)
+  @Index()
   int? serverId;
   
   String name;
   String position;
   String department;
+  
+  @Index(unique: true)
   String email;
+  
   String phone;
   DateTime joinDate;
   
