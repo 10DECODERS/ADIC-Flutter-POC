@@ -4,6 +4,8 @@ import 'package:adic_poc/services/database_service.dart';
 import 'package:adic_poc/services/sync_service.dart';
 import 'dart:async';
 import 'package:adic_poc/screens/staff_form_screen.dart';
+import 'package:adic_poc/screens/staff_ai_chat_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class StaffScreen extends StatefulWidget {
   const StaffScreen({Key? key}) : super(key: key);
@@ -18,6 +20,7 @@ class _StaffScreenState extends State<StaffScreen> {
   List<Staff> _staffList = [];
   bool _isLoading = true;
   String _searchQuery = '';
+  bool _showAIFeature = true;
   late StreamSubscription<bool> _connectivitySubscription;
   Timer? _connectivityTimer;
 
@@ -25,6 +28,7 @@ class _StaffScreenState extends State<StaffScreen> {
   void initState() {
     super.initState();
     _loadStaff();
+    _loadSettings();
     _syncService.syncData();
     
     // Subscribe to connectivity changes
@@ -67,6 +71,15 @@ class _StaffScreenState extends State<StaffScreen> {
       _staffList = staffList;
       _isLoading = false;
     });
+  }
+
+  Future<void> _loadSettings() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (mounted) {
+      setState(() {
+        _showAIFeature = prefs.getBool('showAIFeature') ?? true;
+      });
+    }
   }
 
   List<Staff> get _filteredStaffList {
@@ -158,25 +171,69 @@ class _StaffScreenState extends State<StaffScreen> {
           Container(
             color: Colors.blue.shade700,
             padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-            child: TextField(
-              style: const TextStyle(color: Colors.white),
-              decoration: InputDecoration(
-                hintText: 'Search staff...',
-                hintStyle: TextStyle(color: Colors.blue.shade100),
-                prefixIcon: Icon(Icons.search, color: Colors.blue.shade100),
-                filled: true,
-                fillColor: Colors.blue.shade600,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide.none,
+            child: Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    style: const TextStyle(color: Colors.white),
+                    decoration: InputDecoration(
+                      hintText: 'Search staff...',
+                      hintStyle: TextStyle(color: Colors.blue.shade100),
+                      prefixIcon: Icon(Icons.search, color: Colors.blue.shade100),
+                      filled: true,
+                      fillColor: Colors.blue.shade600,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide.none,
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(vertical: 0),
+                    ),
+                    onChanged: (value) {
+                      setState(() {
+                        _searchQuery = value;
+                      });
+                    },
+                  ),
                 ),
-                contentPadding: const EdgeInsets.symmetric(vertical: 0),
-              ),
-              onChanged: (value) {
-                setState(() {
-                  _searchQuery = value;
-                });
-              },
+                if (_showAIFeature) ...[
+                  const SizedBox(width: 10),
+                  Material(
+                    color: Colors.blue.shade600,
+                    borderRadius: BorderRadius.circular(12),
+                    child: InkWell(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const StaffAIChatScreen(),
+                          ),
+                        ).then((_) => _loadSettings());
+                      },
+                      borderRadius: BorderRadius.circular(12),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.smart_toy_outlined,
+                              color: Colors.blue.shade100,
+                              size: 20,
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              'Ask AI',
+                              style: TextStyle(
+                                color: Colors.blue.shade100,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ],
             ),
           ),
           Expanded(

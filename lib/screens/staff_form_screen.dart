@@ -5,7 +5,9 @@ import 'package:adic_poc/services/sync_service.dart';
 
 // Add Staff Screen
 class AddStaffScreen extends StatefulWidget {
-  const AddStaffScreen({Key? key}) : super(key: key);
+  final Map<String, dynamic>? prefillData;
+  
+  const AddStaffScreen({Key? key, this.prefillData}) : super(key: key);
 
   @override
   State<AddStaffScreen> createState() => _AddStaffScreenState();
@@ -23,6 +25,30 @@ class _AddStaffScreenState extends State<AddStaffScreen> {
   final _phoneController = TextEditingController();
   
   bool _isSaving = false;
+
+  @override
+  void initState() {
+    super.initState();
+    
+    // Set prefilled data if available from AI
+    if (widget.prefillData != null) {
+      if (widget.prefillData!['name'] != null) {
+        _nameController.text = widget.prefillData!['name'];
+      }
+      if (widget.prefillData!['position'] != null) {
+        _positionController.text = widget.prefillData!['position'];
+      }
+      if (widget.prefillData!['department'] != null) {
+        _departmentController.text = widget.prefillData!['department'];
+      }
+      if (widget.prefillData!['email'] != null) {
+        _emailController.text = widget.prefillData!['email'];
+      }
+      if (widget.prefillData!['phone'] != null) {
+        _phoneController.text = widget.prefillData!['phone'];
+      }
+    }
+  }
 
   @override
   void dispose() {
