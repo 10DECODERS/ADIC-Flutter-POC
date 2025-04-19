@@ -17,6 +17,7 @@ class StaffScreen extends StatefulWidget {
 class _StaffScreenState extends State<StaffScreen> {
   final DatabaseService _dbService = DatabaseService();
   final SyncService _syncService = SyncService();
+  final TextEditingController _searchController = TextEditingController();
   List<Staff> _staffList = [];
   bool _isLoading = true;
   String _searchQuery = '';
@@ -57,6 +58,7 @@ class _StaffScreenState extends State<StaffScreen> {
     // Cancel subscription and timer to avoid memory leaks
     _connectivitySubscription.cancel();
     _connectivityTimer?.cancel();
+    _searchController.dispose();
     super.dispose();
   }
 
@@ -175,6 +177,7 @@ class _StaffScreenState extends State<StaffScreen> {
               children: [
                 Expanded(
                   child: TextField(
+                    controller: _searchController,
                     style: const TextStyle(color: Colors.white),
                     decoration: InputDecoration(
                       hintText: 'Search staff...',
@@ -269,6 +272,7 @@ class _StaffScreenState extends State<StaffScreen> {
                                 onPressed: () {
                                   setState(() {
                                     _searchQuery = '';
+                                    _searchController.clear();
                                   });
                                 },
                                 icon: const Icon(Icons.clear),
