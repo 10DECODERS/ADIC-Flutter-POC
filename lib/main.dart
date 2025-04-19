@@ -4,8 +4,21 @@ import 'providers/auth_provider.dart';
 import 'screens/splash_screen.dart';
 import 'screens/login_screen.dart';
 import 'screens/home_screen.dart';
+import 'screens/staff_screen.dart';
+import 'services/database_service.dart';
+import 'services/sync_service.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  
+  // Initialize database
+  final databaseService = DatabaseService();
+  await databaseService.init();
+  
+  // Initialize sync service
+  final syncService = SyncService();
+  syncService.init();
+  
   runApp(const MyApp());
 }
 
@@ -29,6 +42,7 @@ class MyApp extends StatelessWidget {
           '/': (context) => const SplashScreen(),
           '/login': (context) => const LoginScreen(),
           '/home': (context) => const HomeScreen(),
+          '/staff': (context) => const StaffScreen(),
         },
       ),
     );

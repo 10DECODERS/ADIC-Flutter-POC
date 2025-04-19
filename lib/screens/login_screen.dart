@@ -48,7 +48,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 onPressed: () async {
                   final success = await authProvider.login();
                   if (success && mounted) {
-                    Navigator.of(context).pushReplacementNamed('/home');
+                    Navigator.of(context).pushReplacementNamed('/staff');
                   }
                 },
                 style: ElevatedButton.styleFrom(

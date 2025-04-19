@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter_appauth/flutter_appauth.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
@@ -8,7 +9,17 @@ class AuthService {
   // Azure AD OAuth settings - replace with your values
   static const String clientId = '5e55e62b-9428-4315-8708-a1dbf6929abe';
   static const String tenantId = '4649f97a-c37c-49ae-98c9-a1981a56f28b';
-  static const String redirectUrl = 'msauth://com.example.flutter_application/auth';
+  
+  // Platform-specific redirect URLs
+  static String get redirectUrl {
+    if (Platform.isAndroid) {
+      return 'msauth://com.example.flutter_application/auth';
+    } else if (Platform.isIOS) {
+      return 'com.example.flutter-application://auth';
+    } else {
+      return 'http://localhost';
+    }
+  }
 
   // OAuth endpoints
   final String _tokenUrl = 'https://login.microsoftonline.com/$tenantId/oauth2/v2.0/token';
@@ -26,6 +37,26 @@ class AuthService {
   // User information
   User? _currentUser;
   User? get currentUser => _currentUser;
+
+  // Get access token
+  Future<String?> getAccessToken() async {
+    if (_currentUser != null) {
+      if (_currentUser!.isTokenExpired) {
+        final bool refreshed = await _refreshToken(_currentUser!.refreshToken);
+        if (!refreshed) {
+          return null;
+        }
+      }
+      return _currentUser!.accessToken;
+    }
+    
+    final bool isLoggedInVal = await isLoggedIn();
+    if (isLoggedInVal && _currentUser != null) {
+      return _currentUser!.accessToken;
+    }
+    
+    return null;
+  }
 
   // Check if user is logged in
   Future<bool> isLoggedIn() async {
