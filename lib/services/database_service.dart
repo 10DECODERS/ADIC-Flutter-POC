@@ -28,12 +28,27 @@ class DatabaseService {
   }
 
   Future<void> _updateConnectionStatus(ConnectivityResult result) async {
+    bool previousStatus = _isOnline;
+    
     if (result == ConnectivityResult.none) {
       _isOnline = false;
     } else {
+      // Double-check with InternetConnectionChecker to verify actual internet connectivity
       _isOnline = await InternetConnectionChecker().hasConnection;
     }
-    _connectivityController.add(_isOnline);
+    
+    // Only notify listeners when the status actually changes
+    if (previousStatus != _isOnline) {
+      print('Connectivity status changed: $_isOnline');
+      _connectivityController.add(_isOnline);
+    }
+  }
+
+  // Add method to manually check connectivity status (can be called periodically)
+  Future<bool> checkConnectivity() async {
+    ConnectivityResult result = await Connectivity().checkConnectivity();
+    await _updateConnectionStatus(result);
+    return _isOnline;
   }
 
   bool get isOnline => _isOnline;

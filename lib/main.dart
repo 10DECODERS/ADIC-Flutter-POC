@@ -5,6 +5,7 @@ import 'screens/splash_screen.dart';
 import 'screens/login_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/staff_screen.dart';
+import 'screens/staff_form_screen.dart';
 import 'screens/main_layout.dart';
 import 'services/database_service.dart';
 import 'services/sync_service.dart';

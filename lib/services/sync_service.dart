@@ -21,6 +21,11 @@ class SyncService {
         syncData();
       }
     });
+    
+    // Check current connectivity status immediately
+    Future.delayed(const Duration(seconds: 1), () async {
+      await _dbService.checkConnectivity();
+    });
   }
 
   void dispose() {

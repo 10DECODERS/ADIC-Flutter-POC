@@ -15,7 +15,7 @@ class AuthService {
     if (Platform.isAndroid) {
       return 'msauth://com.example.flutter_application/auth';
     } else if (Platform.isIOS) {
-      return 'com.example.flutter-application://auth';
+      return 'msauth://com.example.flutter_application/auth';
     } else {
       return 'http://localhost';
     }

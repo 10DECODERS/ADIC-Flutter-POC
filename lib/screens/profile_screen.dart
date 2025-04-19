@@ -10,80 +10,297 @@ class ProfileScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthProvider>(context);
     final User? user = authProvider.currentUser;
+    final theme = Theme.of(context);
 
     return Scaffold(
+      backgroundColor: Colors.grey.shade100,
       appBar: AppBar(
-        title: const Text('Profile'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: () async {
-              await authProvider.logout();
-              if (context.mounted) {
-                Navigator.of(context).pushNamedAndRemoveUntil('/login', (route) => false);
-              }
-            },
+        elevation: 0,
+        backgroundColor: Colors.blue.shade700,
+        title: const Text(
+          'Profile',
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
           ),
-        ],
+        ),
       ),
       body: user == null
-          ? const Center(child: Text('Not logged in'))
-          : Padding(
-              padding: const EdgeInsets.all(16.0),
+          ? _buildNotLoggedIn()
+          : SingleChildScrollView(
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Center(
-                    child: CircleAvatar(
-                      radius: 50,
-                      backgroundColor: Theme.of(context).colorScheme.primary,
-                      child: Text(
-                        user.displayName.isNotEmpty
-                            ? user.displayName[0].toUpperCase()
-                            : '?',
-                        style: const TextStyle(
-                          fontSize: 40,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                  _buildProfileItem(
-                    context,
-                    'Display Name',
-                    user.displayName,
-                    Icons.person,
-                  ),
-                  _buildProfileItem(
-                    context,
-                    'Email',
-                    user.email,
-                    Icons.email,
-                  ),
-                  _buildProfileItem(
-                    context,
-                    'User ID',
-                    user.id,
-                    Icons.badge,
-                  ),
+                  _buildProfileHeader(context, user),
                   const SizedBox(height: 20),
-                  const Divider(),
-                  ListTile(
-                    leading: Icon(
-                      Icons.security,
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
-                    title: const Text('Authentication'),
-                    subtitle: const Text('Microsoft Azure AD'),
-                    trailing: Icon(
-                      Icons.check_circle,
-                      color: Colors.green,
-                    ),
-                  ),
+                  _buildInfoSection(context, user),
+                  const SizedBox(height: 20),
+                  _buildAuthenticationCard(context),
+                  const SizedBox(height: 20),
+                  _buildLogoutButton(context, authProvider),
                 ],
               ),
             ),
+    );
+  }
+
+  Widget _buildNotLoggedIn() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.account_circle,
+            size: 80,
+            color: Colors.grey.shade400,
+          ),
+          const SizedBox(height: 16),
+          Text(
+            'Not logged in',
+            style: TextStyle(
+              fontSize: 18,
+              color: Colors.grey.shade600,
+            ),
+          ),
+          const SizedBox(height: 24),
+          ElevatedButton.icon(
+            icon: const Icon(Icons.login),
+            label: const Text('Go to Login'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.blue.shade700,
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+            ),
+            onPressed: () {},
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildProfileHeader(BuildContext context, User user) {
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: Colors.blue.shade700,
+      ),
+      padding: const EdgeInsets.only(bottom: 30),
+      child: Column(
+        children: [
+          const SizedBox(height: 20),
+          CircleAvatar(
+            radius: 50,
+            backgroundColor: Colors.white,
+            child: Text(
+              user.displayName.isNotEmpty
+                  ? user.displayName[0].toUpperCase()
+                  : '?',
+              style: TextStyle(
+                fontSize: 40,
+                fontWeight: FontWeight.bold,
+                color: Colors.blue.shade700,
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            user.displayName,
+            style: const TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(
+                Icons.email,
+                size: 16,
+                color: Colors.white70,
+              ),
+              const SizedBox(width: 4),
+              Text(
+                user.email,
+                style: const TextStyle(
+                  fontSize: 16,
+                  color: Colors.white70,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInfoSection(BuildContext context, User user) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+            child: Text(
+              'Profile Information',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+          const SizedBox(height: 8),
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.grey.shade50,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Column(
+              children: [
+                _buildProfileItem(
+                  context,
+                  'Full Name',
+                  user.displayName,
+                  Icons.person,
+                ),
+                const Divider(height: 24),
+                _buildProfileItem(
+                  context,
+                  'Email Address',
+                  user.email,
+                  Icons.email,
+                ),
+                const Divider(height: 24),
+                _buildProfileItem(
+                  context,
+                  'User ID',
+                  user.id,
+                  Icons.badge,
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAuthenticationCard(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+            child: Text(
+              'Security',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+          const SizedBox(height: 8),
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.grey.shade50,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.blue.shade100,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Icon(
+                    Icons.security,
+                    color: Colors.blue.shade700,
+                    size: 28,
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Authentication',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      const Text(
+                        'Microsoft Azure AD',
+                        style: TextStyle(
+                          color: Colors.grey,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: Colors.green.shade100,
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.check_circle,
+                        color: Colors.green.shade700,
+                        size: 16,
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        'Active',
+                        style: TextStyle(
+                          color: Colors.green.shade700,
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLogoutButton(BuildContext context, AuthProvider authProvider) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: SizedBox(
+        width: double.infinity,
+        child: OutlinedButton.icon(
+          icon: Icon(Icons.logout, color: Colors.red.shade700),
+          label: Text(
+            'Logout',
+            style: TextStyle(color: Colors.red.shade700),
+          ),
+          style: OutlinedButton.styleFrom(
+            padding: const EdgeInsets.symmetric(vertical: 16),
+            side: BorderSide(color: Colors.red.shade700),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
+          onPressed: () => _showLogoutConfirmationDialog(context, authProvider),
+        ),
+      ),
     );
   }
 
@@ -93,40 +310,82 @@ class ProfileScreen extends StatelessWidget {
     String value,
     IconData icon,
   ) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(
-            icon,
-            color: Theme.of(context).colorScheme.primary,
-            size: 24,
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: Colors.blue.shade50,
+            borderRadius: BorderRadius.circular(8),
           ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  label,
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey[600],
-                  ),
+          child: Icon(
+            icon,
+            color: Colors.blue.shade700,
+            size: 20,
+          ),
+        ),
+        const SizedBox(width: 16),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Colors.grey[600],
                 ),
-                const SizedBox(height: 4),
-                Text(
-                  value,
-                  style: const TextStyle(
-                    fontSize: 16,
-                  ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                value,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
                 ),
-              ],
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Future<void> _showLogoutConfirmationDialog(
+    BuildContext context,
+    AuthProvider authProvider,
+  ) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        title: const Text('Confirm Logout'),
+        content: const Text('Are you sure you want to log out of your account?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red.shade700,
+              foregroundColor: Colors.white,
             ),
+            child: const Text('Logout'),
           ),
         ],
       ),
     );
+
+    if (confirmed == true) {
+      await authProvider.logout();
+      if (context.mounted) {
+        Navigator.of(context).pushNamedAndRemoveUntil('/login', (route) => false);
+      }
+    }
   }
 } 
