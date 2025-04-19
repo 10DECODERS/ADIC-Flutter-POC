@@ -26,7 +26,7 @@ class _SplashScreenState extends State<SplashScreen> {
     if (!mounted) return;
     
     if (authProvider.isAuthenticated) {
-      Navigator.of(context).pushReplacementNamed('/staff');
+      Navigator.of(context).pushReplacementNamed('/main');
     } else {
       Navigator.of(context).pushReplacementNamed('/login');
     }

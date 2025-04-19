@@ -5,6 +5,7 @@ import 'screens/splash_screen.dart';
 import 'screens/login_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/staff_screen.dart';
+import 'screens/main_layout.dart';
 import 'services/database_service.dart';
 import 'services/sync_service.dart';
 
@@ -43,6 +44,7 @@ class MyApp extends StatelessWidget {
           '/login': (context) => const LoginScreen(),
           '/home': (context) => const HomeScreen(),
           '/staff': (context) => const StaffScreen(),
+          '/main': (context) => const MainLayout(),
         },
       ),
     );
