@@ -7,7 +7,7 @@ import 'package:adic_poc/services/api_key_service.dart';
 import 'package:adic_poc/screens/api_key_screen.dart';
 
 class StaffAIChatScreen extends StatefulWidget {
-  const StaffAIChatScreen({Key? key}) : super(key: key);
+  const StaffAIChatScreen({super.key});
 
   @override
   State<StaffAIChatScreen> createState() => _StaffAIChatScreenState();

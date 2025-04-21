@@ -7,7 +7,7 @@ import 'package:adic_poc/services/sync_service.dart';
 class AddStaffScreen extends StatefulWidget {
   final Map<String, dynamic>? prefillData;
   
-  const AddStaffScreen({Key? key, this.prefillData}) : super(key: key);
+  const AddStaffScreen({super.key, this.prefillData});
 
   @override
   State<AddStaffScreen> createState() => _AddStaffScreenState();
@@ -256,7 +256,7 @@ class _AddStaffScreenState extends State<AddStaffScreen> {
 class EditStaffScreen extends StatefulWidget {
   final Staff staff;
   
-  const EditStaffScreen({Key? key, required this.staff}) : super(key: key);
+  const EditStaffScreen({super.key, required this.staff});
 
   @override
   State<EditStaffScreen> createState() => _EditStaffScreenState();

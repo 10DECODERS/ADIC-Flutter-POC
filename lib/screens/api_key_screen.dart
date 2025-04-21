@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:adic_poc/services/api_key_service.dart';
 
 class ApiKeyScreen extends StatefulWidget {
-  const ApiKeyScreen({Key? key}) : super(key: key);
+  const ApiKeyScreen({super.key});
 
   @override
   State<ApiKeyScreen> createState() => _ApiKeyScreenState();
@@ -35,7 +35,7 @@ class _ApiKeyScreenState extends State<ApiKeyScreen> {
       final key = await _apiKeyService.getApiKey();
       if (key != null && key.isNotEmpty) {
         // Show last 4 characters only
-        _apiKeyController.text = '••••••••' + key.substring(key.length - 4);
+        _apiKeyController.text = '••••••••${key.substring(key.length - 4)}';
       }
     }
     

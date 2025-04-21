@@ -188,8 +188,7 @@ For searching, identify the search term clearly.''',
 
       return AIResponse(
         message:
-            content +
-            "\n\nI need to know which staff member to update. Could you provide their ID or email?",
+            "$content\n\nI need to know which staff member to update. Could you provide their ID or email?",
         action: null,
       );
     }

@@ -8,7 +8,7 @@ import 'package:adic_poc/screens/staff_ai_chat_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class StaffScreen extends StatefulWidget {
-  const StaffScreen({Key? key}) : super(key: key);
+  const StaffScreen({super.key});
 
   @override
   State<StaffScreen> createState() => _StaffScreenState();
@@ -260,7 +260,7 @@ class _StaffScreenState extends State<StaffScreen> {
                             Text(
                               _searchQuery.isEmpty
                                   ? 'No staff records found'
-                                  : 'No staff matching "${_searchQuery}"',
+                                  : 'No staff matching "$_searchQuery"',
                               style: TextStyle(
                                 fontSize: 16,
                                 color: Colors.grey.shade600,
