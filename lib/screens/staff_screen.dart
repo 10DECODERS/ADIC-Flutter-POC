@@ -161,10 +161,6 @@ class _StaffScreenState extends State<StaffScreen> {
               }
             },
           ),
-          IconButton(
-            icon: const Icon(Icons.refresh, color: Colors.white),
-            onPressed: _loadStaff,
-          ),
         ],
       ),
       body: Column(
