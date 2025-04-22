@@ -239,128 +239,131 @@ class _StaffScreenState extends State<StaffScreen> {
             ),
           ),
           Expanded(
-            child: _isLoading
-                ? Center(
-                    child: CircularProgressIndicator(
-                      valueColor: AlwaysStoppedAnimation<Color>(theme.colorScheme.primary),
-                    ),
-                  )
-                : _filteredStaffList.isEmpty
-                    ? Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.people_outline,
-                              size: 64,
-                              color: Colors.grey.shade400,
-                            ),
-                            const SizedBox(height: 16),
-                            Text(
-                              _searchQuery.isEmpty
-                                  ? 'No staff records found'
-                                  : 'No staff matching "$_searchQuery"',
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: Colors.grey.shade600,
+            child: RefreshIndicator(
+              onRefresh: _loadStaff,
+              child: _isLoading
+                  ? Center(
+                      child: CircularProgressIndicator(
+                        valueColor: AlwaysStoppedAnimation<Color>(theme.colorScheme.primary),
+                      ),
+                    )
+                  : _filteredStaffList.isEmpty
+                      ? Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.people_outline,
+                                size: 64,
+                                color: Colors.grey.shade400,
                               ),
-                            ),
-                            if (_searchQuery.isNotEmpty) ...[
                               const SizedBox(height: 16),
-                              ElevatedButton.icon(
-                                onPressed: () {
-                                  setState(() {
-                                    _searchQuery = '';
-                                    _searchController.clear();
-                                  });
-                                },
-                                icon: const Icon(Icons.clear),
-                                label: const Text('Clear search'),
-                                style: ElevatedButton.styleFrom(
+                              Text(
+                                _searchQuery.isEmpty
+                                    ? 'No staff records found'
+                                    : 'No staff matching "$_searchQuery"',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: Colors.grey.shade600,
                                 ),
                               ),
+                              if (_searchQuery.isNotEmpty) ...[
+                                const SizedBox(height: 16),
+                                ElevatedButton.icon(
+                                  onPressed: () {
+                                    setState(() {
+                                      _searchQuery = '';
+                                      _searchController.clear();
+                                    });
+                                  },
+                                  icon: const Icon(Icons.clear),
+                                  label: const Text('Clear search'),
+                                  style: ElevatedButton.styleFrom(
+                                  ),
+                                ),
+                              ],
                             ],
-                          ],
-                        ),
-                      )
-                    : ListView.builder(
-                        itemCount: _filteredStaffList.length,
-                        padding: const EdgeInsets.only(top: 8),
-                        itemBuilder: (context, index) {
-                          final staff = _filteredStaffList[index];
-                          return Card(
-                            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-                            elevation: 2,
-                            shadowColor: Colors.black.withOpacity(0.1),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: ListTile(
-                              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                              leading: CircleAvatar(
-                                backgroundColor: theme.colorScheme.primaryContainer.withOpacity(0.3),
-                                child: Text(
-                                  staff.name.isNotEmpty ? staff.name[0].toUpperCase() : '?',
-                                  style: TextStyle(
-                                    color: theme.colorScheme.primary,
+                          ),
+                        )
+                      : ListView.builder(
+                          itemCount: _filteredStaffList.length,
+                          padding: const EdgeInsets.only(top: 8),
+                          itemBuilder: (context, index) {
+                            final staff = _filteredStaffList[index];
+                            return Card(
+                              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                              elevation: 2,
+                              shadowColor: Colors.black.withOpacity(0.1),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: ListTile(
+                                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                leading: CircleAvatar(
+                                  backgroundColor: theme.colorScheme.primaryContainer.withOpacity(0.3),
+                                  child: Text(
+                                    staff.name.isNotEmpty ? staff.name[0].toUpperCase() : '?',
+                                    style: TextStyle(
+                                      color: theme.colorScheme.primary,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                                title: Text(
+                                  staff.name,
+                                  style: const TextStyle(
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
-                              ),
-                              title: Text(
-                                staff.name,
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              subtitle: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    staff.position.isNotEmpty ? staff.position : 'No position',
-                                    style: const TextStyle(fontSize: 14),
-                                  ),
-                                  Text(
-                                    staff.department.isNotEmpty ? staff.department : 'No department',
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      color: Colors.grey.shade600,
+                                subtitle: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      staff.position.isNotEmpty ? staff.position : 'No position',
+                                      style: const TextStyle(fontSize: 14),
                                     ),
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Row(
-                                    children: [
-                                      _getSyncStatusIcon(staff.syncStatus),
-                                      const SizedBox(width: 4),
-                                      Text(
-                                        _getSyncStatusText(staff.syncStatus),
-                                        style: TextStyle(
-                                          fontSize: 12,
-                                          color: Colors.grey.shade600,
-                                        ),
+                                    Text(
+                                      staff.department.isNotEmpty ? staff.department : 'No department',
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        color: Colors.grey.shade600,
                                       ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                              trailing: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  IconButton(
-                                    icon: Icon(
-                                      Icons.edit,
-                                      color: theme.colorScheme.primary,
                                     ),
-                                    onPressed: () => _navigateToEditStaff(staff),
-                                  ),
-                                ],
+                                    const SizedBox(height: 4),
+                                    Row(
+                                      children: [
+                                        _getSyncStatusIcon(staff.syncStatus),
+                                        const SizedBox(width: 4),
+                                        Text(
+                                          _getSyncStatusText(staff.syncStatus),
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            color: Colors.grey.shade600,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                                trailing: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    IconButton(
+                                      icon: Icon(
+                                        Icons.edit,
+                                        color: theme.colorScheme.primary,
+                                      ),
+                                      onPressed: () => _navigateToEditStaff(staff),
+                                    ),
+                                  ],
+                                ),
+                                onTap: () => _showStaffDetails(staff),
                               ),
-                              onTap: () => _showStaffDetails(staff),
-                            ),
-                          );
-                        },
-                      ),
+                            );
+                          },
+                        ),
+            ),
           ),
         ],
       ),
