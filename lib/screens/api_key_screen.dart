@@ -129,7 +129,6 @@ class _ApiKeyScreenState extends State<ApiKeyScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.blue.shade700,
         title: const Text(
           'OpenAI API Key',
           style: TextStyle(
@@ -142,7 +141,7 @@ class _ApiKeyScreenState extends State<ApiKeyScreen> {
       body: _isLoading
           ? Center(
               child: CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation<Color>(Colors.blue.shade700),
+                valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).colorScheme.primary),
               ),
             )
           : SingleChildScrollView(

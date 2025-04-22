@@ -35,7 +35,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.blue.shade700,
         title: const Text(
           'Settings',
           style: TextStyle(
@@ -48,7 +47,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       body: _isLoading
           ? Center(
               child: CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation<Color>(Colors.blue.shade700),
+                valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).colorScheme.primary),
               ),
             )
           : ListView(
@@ -76,10 +75,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     subtitle: const Text('Show the AI assistant button on the Staff screen'),
                     secondary: Icon(
                       Icons.smart_toy_outlined,
-                      color: Colors.blue.shade700,
+                      color: Theme.of(context).colorScheme.primary,
                     ),
                     value: _showAIFeature,
-                    activeColor: Colors.blue.shade700,
+                    activeColor: Theme.of(context).colorScheme.primary,
                     onChanged: (value) {
                       setState(() {
                         _showAIFeature = value;
@@ -111,7 +110,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     subtitle: const Text('1.0.0'),
                     leading: Icon(
                       Icons.info_outline,
-                      color: Colors.blue.shade700,
+                      color: Theme.of(context).colorScheme.primary,
                     ),
                   ),
                 ),

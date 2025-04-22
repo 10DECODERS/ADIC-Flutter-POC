@@ -25,8 +25,8 @@ class _LoginScreenState extends State<LoginScreen> {
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: [
-              Colors.blue.shade800,
-              Colors.blue.shade500,
+              theme.colorScheme.primary,
+              theme.colorScheme.primaryContainer,
             ],
           ),
         ),
@@ -53,10 +53,10 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ],
                     ),
-                    child: const Icon(
+                    child: Icon(
                       Icons.lock_outline,
                       size: 60,
-                      color: Colors.blue,
+                      color: theme.colorScheme.primary,
                     ),
                   ),
                   const SizedBox(height: 40),
@@ -107,7 +107,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.white,
-                          foregroundColor: Colors.blue.shade800,
+                          foregroundColor: theme.colorScheme.primary,
                           elevation: 0,
                           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
                           shape: RoundedRectangleBorder(
@@ -124,7 +124,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w600,
-                                color: Colors.blue.shade800,
+                                color: theme.colorScheme.primary,
                               ),
                             ),
                           ],

@@ -10,13 +10,11 @@ class ProfileScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthProvider>(context);
     final User? user = authProvider.currentUser;
-    final theme = Theme.of(context);
 
     return Scaffold(
       backgroundColor: Colors.grey.shade100,
       appBar: AppBar(
         elevation: 0,
-        backgroundColor: Colors.blue.shade700,
         title: const Text(
           'Profile',
           style: TextStyle(
@@ -77,7 +75,6 @@ class ProfileScreen extends StatelessWidget {
             icon: const Icon(Icons.login),
             label: const Text('Go to Login'),
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.blue.shade700,
               foregroundColor: Colors.white,
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
             ),
@@ -92,7 +89,7 @@ class ProfileScreen extends StatelessWidget {
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
-        color: Colors.blue.shade700,
+        color: Colors.teal.shade700,
       ),
       padding: const EdgeInsets.only(bottom: 30),
       child: Column(
@@ -108,7 +105,7 @@ class ProfileScreen extends StatelessWidget {
               style: TextStyle(
                 fontSize: 40,
                 fontWeight: FontWeight.bold,
-                color: Colors.blue.shade700,
+                color: Colors.teal.shade700,
               ),
             ),
           ),
@@ -199,6 +196,7 @@ class ProfileScreen extends StatelessWidget {
   }
 
   Widget _buildAuthenticationCard(BuildContext context) {
+    final theme = Theme.of(context);
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Column(
@@ -226,12 +224,12 @@ class ProfileScreen extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: Colors.blue.shade100,
+                    color: theme.colorScheme.primaryContainer.withOpacity(0.3),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Icon(
                     Icons.security,
-                    color: Colors.blue.shade700,
+                    color: theme.colorScheme.primary,
                     size: 28,
                   ),
                 ),
@@ -261,21 +259,21 @@ class ProfileScreen extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
-                    color: Colors.green.shade100,
+                    color: theme.colorScheme.primaryContainer.withOpacity(0.5),
                     borderRadius: BorderRadius.circular(16),
                   ),
                   child: Row(
                     children: [
                       Icon(
                         Icons.check_circle,
-                        color: Colors.green.shade700,
+                        color: theme.colorScheme.primary,
                         size: 16,
                       ),
                       const SizedBox(width: 4),
                       Text(
                         'Active',
                         style: TextStyle(
-                          color: Colors.green.shade700,
+                          color: theme.colorScheme.primary,
                           fontSize: 12,
                           fontWeight: FontWeight.bold,
                         ),
@@ -321,18 +319,19 @@ class ProfileScreen extends StatelessWidget {
     String value,
     IconData icon,
   ) {
+    final theme = Theme.of(context);
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: Colors.blue.shade50,
+            color: theme.colorScheme.primaryContainer.withOpacity(0.2),
             borderRadius: BorderRadius.circular(8),
           ),
           child: Icon(
             icon,
-            color: Colors.blue.shade700,
+            color: theme.colorScheme.primary,
             size: 20,
           ),
         ),

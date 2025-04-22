@@ -65,7 +65,6 @@ class _AddStaffScreenState extends State<AddStaffScreen> {
     return Scaffold(
       appBar: AppBar(
         elevation: 0,
-        backgroundColor: Colors.blue.shade600,
         title: const Text(
           'Add New Staff',
           style: TextStyle(
@@ -149,7 +148,7 @@ class _AddStaffScreenState extends State<AddStaffScreen> {
               color: Color.fromRGBO(0, 0, 0, 0.3),
               child: Center(
                 child: CircularProgressIndicator(
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.blue.shade700),
+                  valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).colorScheme.primary),
                 ),
               ),
             ),
@@ -176,7 +175,7 @@ class _AddStaffScreenState extends State<AddStaffScreen> {
           color: Colors.grey.shade600,
           fontSize: 14,
         ),
-        prefixIcon: Icon(icon, color: Colors.blue.shade400),
+        prefixIcon: Icon(icon, color: Theme.of(context).colorScheme.primary),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(color: Colors.grey.shade200, width: 1),
@@ -300,7 +299,6 @@ class _EditStaffScreenState extends State<EditStaffScreen> {
     return Scaffold(
       appBar: AppBar(
         elevation: 0,
-        backgroundColor: Colors.blue.shade600,
         title: const Text(
           'Edit Staff',
           style: TextStyle(
@@ -400,7 +398,7 @@ class _EditStaffScreenState extends State<EditStaffScreen> {
               color: Color.fromRGBO(0, 0, 0, 0.3),
               child: Center(
                 child: CircularProgressIndicator(
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.blue.shade700),
+                  valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).colorScheme.primary),
                 ),
               ),
             ),
@@ -427,7 +425,7 @@ class _EditStaffScreenState extends State<EditStaffScreen> {
           color: Colors.grey.shade600,
           fontSize: 14,
         ),
-        prefixIcon: Icon(icon, color: Colors.blue.shade400),
+        prefixIcon: Icon(icon, color: Theme.of(context).colorScheme.primary),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(color: Colors.grey.shade200, width: 1),

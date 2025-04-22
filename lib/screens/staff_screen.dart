@@ -104,7 +104,6 @@ class _StaffScreenState extends State<StaffScreen> {
     return Scaffold(
       appBar: AppBar(
         elevation: 0,
-        backgroundColor: Colors.blue.shade700,
         title: const Text(
           'Staff Management',
           style: TextStyle(
@@ -133,7 +132,7 @@ class _StaffScreenState extends State<StaffScreen> {
                         const Text('Syncing data with server...'),
                       ],
                     ),
-                    backgroundColor: Colors.blue.shade800,
+                    backgroundColor: theme.colorScheme.primary,
                     behavior: SnackBarBehavior.floating,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),
@@ -171,7 +170,7 @@ class _StaffScreenState extends State<StaffScreen> {
       body: Column(
         children: [
           Container(
-            color: Colors.blue.shade700,
+            color: theme.appBarTheme.backgroundColor ?? theme.primaryColor,
             padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
             child: Row(
               children: [
@@ -181,10 +180,10 @@ class _StaffScreenState extends State<StaffScreen> {
                     style: const TextStyle(color: Colors.white),
                     decoration: InputDecoration(
                       hintText: 'Search staff...',
-                      hintStyle: TextStyle(color: Colors.blue.shade100),
-                      prefixIcon: Icon(Icons.search, color: Colors.blue.shade100),
+                      hintStyle: TextStyle(color: theme.colorScheme.onPrimary.withOpacity(0.7)),
+                      prefixIcon: Icon(Icons.search, color: theme.colorScheme.onPrimary.withOpacity(0.7)),
                       filled: true,
-                      fillColor: Colors.blue.shade600,
+                      fillColor: theme.colorScheme.primary.withOpacity(0.8),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide: BorderSide.none,
@@ -201,7 +200,7 @@ class _StaffScreenState extends State<StaffScreen> {
                 if (_showAIFeature) ...[
                   const SizedBox(width: 10),
                   Material(
-                    color: Colors.blue.shade600,
+                    color: theme.colorScheme.primary.withOpacity(0.8),
                     borderRadius: BorderRadius.circular(12),
                     child: InkWell(
                       onTap: () {
@@ -219,14 +218,14 @@ class _StaffScreenState extends State<StaffScreen> {
                           children: [
                             Icon(
                               Icons.smart_toy_outlined,
-                              color: Colors.blue.shade100,
+                              color: theme.colorScheme.onPrimary.withOpacity(0.7),
                               size: 20,
                             ),
                             const SizedBox(width: 4),
                             Text(
                               'Ask AI',
                               style: TextStyle(
-                                color: Colors.blue.shade100,
+                                color: theme.colorScheme.onPrimary.withOpacity(0.7),
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
@@ -243,7 +242,7 @@ class _StaffScreenState extends State<StaffScreen> {
             child: _isLoading
                 ? Center(
                     child: CircularProgressIndicator(
-                      valueColor: AlwaysStoppedAnimation<Color>(Colors.blue.shade700),
+                      valueColor: AlwaysStoppedAnimation<Color>(theme.colorScheme.primary),
                     ),
                   )
                 : _filteredStaffList.isEmpty
@@ -278,8 +277,6 @@ class _StaffScreenState extends State<StaffScreen> {
                                 icon: const Icon(Icons.clear),
                                 label: const Text('Clear search'),
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.blue,
-                                  foregroundColor: Colors.white,
                                 ),
                               ),
                             ],
@@ -301,11 +298,11 @@ class _StaffScreenState extends State<StaffScreen> {
                             child: ListTile(
                               contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                               leading: CircleAvatar(
-                                backgroundColor: Colors.blue.shade100,
+                                backgroundColor: theme.colorScheme.primaryContainer.withOpacity(0.3),
                                 child: Text(
                                   staff.name.isNotEmpty ? staff.name[0].toUpperCase() : '?',
                                   style: TextStyle(
-                                    color: Colors.blue.shade700,
+                                    color: theme.colorScheme.primary,
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
@@ -353,7 +350,7 @@ class _StaffScreenState extends State<StaffScreen> {
                                   IconButton(
                                     icon: Icon(
                                       Icons.edit,
-                                      color: Colors.blue.shade700,
+                                      color: theme.colorScheme.primary,
                                     ),
                                     onPressed: () => _navigateToEditStaff(staff),
                                   ),
@@ -368,7 +365,6 @@ class _StaffScreenState extends State<StaffScreen> {
         ],
       ),
       floatingActionButton: FloatingActionButton(
-        backgroundColor: Colors.blue.shade700,
         child: const Icon(Icons.add, color: Colors.white),
         onPressed: () => _navigateToAddStaff(),
       ),
@@ -511,8 +507,8 @@ class _StaffScreenState extends State<StaffScreen> {
                     label: const Text('Close'),
                     onPressed: () => Navigator.pop(context),
                     style: OutlinedButton.styleFrom(
-                      foregroundColor: Colors.blue,
-                      side: const BorderSide(color: Colors.blue),
+                      foregroundColor: Theme.of(context).colorScheme.primary,
+                      side: BorderSide(color: Theme.of(context).colorScheme.primary),
                       padding: const EdgeInsets.symmetric(vertical: 10),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8),
@@ -530,7 +526,7 @@ class _StaffScreenState extends State<StaffScreen> {
                       _navigateToEditStaff(staff);
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue,
+                      backgroundColor: Theme.of(context).colorScheme.primary,
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(vertical: 10),
                       shape: RoundedRectangleBorder(

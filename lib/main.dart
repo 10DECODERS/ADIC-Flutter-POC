@@ -39,8 +39,25 @@ class MyApp extends StatelessWidget {
       child: MaterialApp(
         title: 'AAD SSO Demo',
         theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.teal),
           useMaterial3: true,
+          appBarTheme: AppBarTheme(
+            backgroundColor: Colors.teal.shade700,
+            foregroundColor: Colors.white,
+          ),
+          floatingActionButtonTheme: FloatingActionButtonThemeData(
+            backgroundColor: Colors.teal.shade600,
+          ),
+          elevatedButtonTheme: ElevatedButtonThemeData(
+             style: ElevatedButton.styleFrom(
+               backgroundColor: Colors.teal.shade600,
+               foregroundColor: Colors.white,
+             ),
+          ),
+           bottomNavigationBarTheme: BottomNavigationBarThemeData(
+            selectedItemColor: Colors.teal.shade700,
+            unselectedItemColor: Colors.grey.shade600,
+          ),
         ),
         initialRoute: '/',
         routes: {
