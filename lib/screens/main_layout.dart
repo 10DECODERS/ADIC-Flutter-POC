@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dashboard_screen.dart';
 import 'staff_screen.dart';
 import 'profile_screen.dart';
 
@@ -13,6 +14,7 @@ class _MainLayoutState extends State<MainLayout> {
   int _selectedIndex = 0;
   
   static final List<Widget> _screens = [
+    const DashboardScreen(),
     const StaffScreen(),
     const ProfileScreen(),
   ];
@@ -31,6 +33,10 @@ class _MainLayoutState extends State<MainLayout> {
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
         items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.dashboard),
+            label: 'Dashboard',
+          ),
           BottomNavigationBarItem(
             icon: Icon(Icons.people),
             label: 'Staffs',
