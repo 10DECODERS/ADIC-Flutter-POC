@@ -76,7 +76,7 @@ class DashboardScreen extends StatelessWidget {
             'Leave History Request',
             style: theme.textTheme.titleLarge?.copyWith(
               fontWeight: FontWeight.bold,
-              color: Colors.grey.shade700,
+              fontSize: 18,
             ),
           ),
           const SizedBox(height: 16),
