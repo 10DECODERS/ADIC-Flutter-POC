@@ -180,13 +180,6 @@ class ProfileScreen extends StatelessWidget {
                   user.email,
                   Icons.email,
                 ),
-                const Divider(height: 24),
-                _buildProfileItem(
-                  context,
-                  'User ID',
-                  user.id,
-                  Icons.badge,
-                ),
               ],
             ),
           ),
