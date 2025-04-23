@@ -77,36 +77,55 @@ class DatabaseService {
   }
 
   Future<int> saveStaff(Staff staff) async {
-    // Always mark new staff as needing sync, since APIs are not yet implemented
-    staff.syncStatus = SyncStatus.created;
+    // Mark as created if it's a new record
+    if (staff.serverId == null) {
+      staff.syncStatus = SyncStatus.created;
+    } else {
+      // If it already has a server ID, it's synced
+      staff.syncStatus = SyncStatus.synced;
+    }
+    
     return await _isar.writeTxn(() async {
       return await _isar.staffs.put(staff);
     });
   }
 
   Future<bool> updateStaff(Staff staff) async {
-    // Always mark as updated since APIs are not implemented yet
-    if (staff.syncStatus != SyncStatus.created) {
+    // Only change sync status if it was previously synced
+    if (staff.syncStatus == SyncStatus.synced) {
       staff.syncStatus = SyncStatus.updated;
     }
+    
     return await _isar.writeTxn(() async {
       return await _isar.staffs.put(staff) > 0;
     });
   }
 
   Future<bool> deleteStaff(int id) async {
-    if (!_isOnline) {
-      // Mark for deletion instead of actually deleting
-      final staff = await getStaffById(id);
-      if (staff != null) {
-        staff.syncStatus = SyncStatus.deleted;
-        return await updateStaff(staff);
-      }
+    final staff = await getStaffById(id);
+    if (staff == null) {
       return false;
     }
-    return await _isar.writeTxn(() async {
-      return await _isar.staffs.delete(id);
-    });
+
+    // If it has a server ID and we're offline, mark for deletion
+    if (!_isOnline && staff.serverId != null) {
+      staff.syncStatus = SyncStatus.deleted;
+      return await _isar.writeTxn(() async {
+        return await _isar.staffs.put(staff) > 0;
+      });
+    } else if (!_isOnline || staff.serverId == null) {
+      // If it doesn't have a server ID or we're offline, delete locally
+      return await _isar.writeTxn(() async {
+        return await _isar.staffs.delete(id);
+      });
+    } else {
+      // If we're online and it has a server ID, mark for deletion
+      // The sync service will handle the actual deletion
+      staff.syncStatus = SyncStatus.deleted;
+      return await _isar.writeTxn(() async {
+        return await _isar.staffs.put(staff) > 0;
+      });
+    }
   }
 
   Future<List<Staff>> getUnsyncedStaff() async {
@@ -121,8 +140,12 @@ class DatabaseService {
       final staff = await _isar.staffs.get(id);
       if (staff != null) {
         staff.syncStatus = SyncStatus.synced;
-        return await _isar.staffs.put(staff) > 0;
+        // Use the put method directly to ensure the record is saved
+        await _isar.staffs.put(staff);
+        print('Marked record ID $id as synced');
+        return true;
       }
+      print('Failed to mark as synced: Record ID $id not found');
       return false;
     });
   }
@@ -138,5 +161,13 @@ class DatabaseService {
         await _isar.staffs.delete(staff.id);
       }
     });
+  }
+
+  // Add method to purge all staff records (for debugging)
+  Future<void> deleteAllStaff() async {
+    await _isar.writeTxn(() async {
+      await _isar.staffs.clear();
+    });
+    print('All staff records deleted from database');
   }
 } 

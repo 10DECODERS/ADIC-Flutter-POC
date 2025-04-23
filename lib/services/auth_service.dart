@@ -7,7 +7,7 @@ import '../models/user.dart';
 
 class AuthService {
   // Azure AD OAuth settings - replace with your values
-  static const String clientId = '5e55e62b-9428-4315-8708-a1dbf6929abe';
+  static const String clientId = '4166272d-3aac-4f37-a4be-ad27df98cbe1';
   static const String tenantId = '4649f97a-c37c-49ae-98c9-a1981a56f28b';
   
   // Platform-specific redirect URLs
@@ -58,6 +58,26 @@ class AuthService {
     return null;
   }
 
+  // Get ID token
+  Future<String?> getIdToken() async {
+    if (_currentUser != null) {
+      if (_currentUser!.isTokenExpired) {
+        final bool refreshed = await _refreshToken(_currentUser!.refreshToken);
+        if (!refreshed) {
+          return null;
+        }
+      }
+      return _currentUser!.idToken;
+    }
+    
+    final bool isLoggedInVal = await isLoggedIn();
+    if (isLoggedInVal && _currentUser != null) {
+      return _currentUser!.idToken;
+    }
+    
+    return null;
+  }
+
   // Check if user is logged in
   Future<bool> isLoggedIn() async {
     final String? userJson = await _secureStorage.read(key: 'user');
@@ -89,17 +109,22 @@ class AuthService {
         AuthorizationTokenRequest(
           clientId,
           redirectUrl,
-          discoveryUrl: 'https://login.microsoftonline.com/$tenantId/v2.0/.well-known/openid-configuration',
+          serviceConfiguration: AuthorizationServiceConfiguration(
+            authorizationEndpoint: _authorizationUrl,
+            tokenEndpoint: _tokenUrl,
+          ),
           scopes: _scopes,
           promptValues: ['login'],
         ),
       );
       
       if (result != null) {
+        print("ID Token: ${result.idToken}");
         final User user = await _getUserProfile(
           result.accessToken!,
           result.refreshToken!,
           result.accessTokenExpirationDateTime!,
+          result.idToken!,
         );
         
         await _secureStorage.write(key: 'user', value: json.encode(user.toJson()));
@@ -127,7 +152,10 @@ class AuthService {
           clientId,
           redirectUrl,
           refreshToken: refreshToken,
-          discoveryUrl: 'https://login.microsoftonline.com/$tenantId/v2.0/.well-known/openid-configuration',
+          serviceConfiguration: AuthorizationServiceConfiguration(
+            authorizationEndpoint: _authorizationUrl,
+            tokenEndpoint: _tokenUrl,
+          ),
           scopes: _scopes,
           grantType: 'refresh_token',
         ),
@@ -138,6 +166,7 @@ class AuthService {
           response.accessToken!,
           response.refreshToken ?? refreshToken,
           response.accessTokenExpirationDateTime!,
+          response.idToken!,
         );
         
         await _secureStorage.write(key: 'user', value: json.encode(user.toJson()));
@@ -152,25 +181,37 @@ class AuthService {
   }
 
   // Get user profile from Microsoft Graph API
-  Future<User> _getUserProfile(String accessToken, String refreshToken, DateTime expiresAt) async {
-    final http.Response response = await http.get(
-      Uri.parse('https://graph.microsoft.com/v1.0/me'),
-      headers: {'Authorization': 'Bearer $accessToken'},
-    );
-    
-    if (response.statusCode == 200) {
-      final Map<String, dynamic> profile = json.decode(response.body);
-      
-      return User(
-        id: profile['id'],
-        displayName: profile['displayName'],
-        email: profile['userPrincipalName'],
-        accessToken: accessToken,
-        refreshToken: refreshToken,
-        expiresAt: expiresAt,
+  Future<User> _getUserProfile(String accessToken, String refreshToken, DateTime expiresAt, String idToken) async {
+    try {
+      final http.Response response = await http.get(
+        Uri.parse('https://graph.microsoft.com/v1.0/me'),
+        headers: {'Authorization': 'Bearer $accessToken'},
       );
-    } else {
-      throw Exception('Failed to get user profile');
+      
+      if (response.statusCode == 200) {
+        try {
+          final Map<String, dynamic> profile = json.decode(response.body);
+          
+          return User(
+            id: profile['id'],
+            displayName: profile['displayName'],
+            email: profile['userPrincipalName'],
+            accessToken: accessToken,
+            refreshToken: refreshToken,
+            expiresAt: expiresAt,
+            idToken: idToken,
+          );
+        } catch (e) {
+          print('Error parsing user profile: $e');
+          throw Exception('Failed to parse user profile: $e');
+        }
+      } else {
+        print('Failed to get user profile: ${response.statusCode}, ${response.body}');
+        throw Exception('Failed to get user profile: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error getting user profile: $e');
+      throw Exception('Error getting user profile: $e');
     }
   }
 } 

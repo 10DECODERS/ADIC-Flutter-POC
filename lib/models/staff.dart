@@ -34,14 +34,23 @@ class Staff {
   });
   
   factory Staff.fromJson(Map<String, dynamic> json) {
+    DateTime joinDate;
+    try {
+      joinDate = json['joinDate'] != null 
+        ? DateTime.parse(json['joinDate']) 
+        : DateTime.now();
+    } catch (e) {
+      joinDate = DateTime.now();
+    }
+
     return Staff(
       serverId: json['id'],
       name: json['name'],
       position: json['position'],
       department: json['department'],
       email: json['email'],
-      phone: json['phone'],
-      joinDate: DateTime.parse(json['joinDate']),
+      phone: json['phone'] ?? '',
+      joinDate: joinDate,
       syncStatus: SyncStatus.synced,
     );
   }

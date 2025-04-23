@@ -217,24 +217,38 @@ class _AddStaffScreenState extends State<AddStaffScreen> {
           return;
         }
         
-        final joinDate = DateTime.now();
-        
-        final newStaff = Staff(
+        final staff = Staff(
           name: _nameController.text,
           position: _positionController.text,
           department: _departmentController.text,
           email: _emailController.text,
           phone: _phoneController.text,
-          joinDate: joinDate,
+          joinDate: DateTime.now(),
         );
         
-        await _dbService.saveStaff(newStaff);
+        // Save locally first
+        final id = await _dbService.saveStaff(staff);
         
+        // Show appropriate message based on connectivity
         if (_dbService.isOnline) {
-          await _syncService.syncData();
+          // Trigger sync in background
+          _syncService.syncData();
+          
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Staff member added and syncing to server'),
+              backgroundColor: Colors.green,
+            ),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Staff member added locally. Will sync when online.'),
+              backgroundColor: Colors.orange,
+            ),
+          );
         }
         
-        // Return true to indicate success
         Navigator.pop(context, true);
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -485,8 +499,24 @@ class _EditStaffScreenState extends State<EditStaffScreen> {
         
         await _dbService.updateStaff(updatedStaff);
         
+        // Show appropriate message based on connectivity
         if (_dbService.isOnline) {
-          await _syncService.syncData();
+          // Trigger sync in background
+          _syncService.syncData();
+          
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Staff member updated and syncing to server'),
+              backgroundColor: Colors.green,
+            ),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Staff member updated locally. Will sync when online.'),
+              backgroundColor: Colors.orange,
+            ),
+          );
         }
         
         Navigator.pop(context, true);
@@ -505,68 +535,11 @@ class _EditStaffScreenState extends State<EditStaffScreen> {
   }
   
   Future<void> _deleteStaff() async {
-    if (!mounted) return;
-    
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
-        titlePadding: EdgeInsets.zero,
-        title: Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: Colors.red.shade700,
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-          ),
-          child: const Row(
-            children: [
-              Icon(Icons.delete, color: Colors.white),
-              SizedBox(width: 12),
-              Text(
-                'Confirm Delete',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
-          ),
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const SizedBox(height: 8),
-            CircleAvatar(
-              radius: 30,
-              backgroundColor: Colors.red.shade100,
-              child: Icon(
-                Icons.person_off,
-                color: Colors.red.shade700,
-                size: 32,
-              ),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'Are you sure you want to delete',
-              style: TextStyle(fontSize: 16, color: Colors.grey.shade700),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              widget.staff.name,
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'This action cannot be undone.',
-              style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
-            ),
-          ],
-        ),
+        title: const Text('Confirm Deletion'),
+        content: Text('Are you sure you want to delete ${widget.staff.name}?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -586,26 +559,45 @@ class _EditStaffScreenState extends State<EditStaffScreen> {
     );
 
     if (confirmed ?? false) {
+      setState(() {
+        _isSaving = true;
+      });
+      
       try {
         await _dbService.deleteStaff(widget.staff.id);
         
-        if (mounted && _dbService.isOnline) {
-          await _syncService.syncData();
-        }
-        
-        // Return true to indicate success
-        if (mounted) {
-          Navigator.pop(context, true);
-        }
-      } catch (e) {
-        if (mounted) {
+        // Show appropriate message based on connectivity
+        if (_dbService.isOnline) {
+          // Trigger sync in background
+          _syncService.syncData();
+          
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Error deleting staff: $e'),
-              backgroundColor: Colors.red,
+              content: Text('Staff member deleted and syncing to server'),
+              backgroundColor: Colors.green,
+            ),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Staff member marked for deletion. Will sync when online.'),
+              backgroundColor: Colors.orange,
             ),
           );
         }
+        
+        // Return true to indicate success
+        Navigator.pop(context, true);
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error deleting staff: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+        setState(() {
+          _isSaving = false;
+        });
       }
     }
   }

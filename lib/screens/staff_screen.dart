@@ -6,6 +6,7 @@ import 'dart:async';
 import 'package:adic_poc/screens/staff_form_screen.dart';
 import 'package:adic_poc/screens/staff_ai_chat_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:adic_poc/screens/debug_database_screen.dart';
 
 class StaffScreen extends StatefulWidget {
   const StaffScreen({super.key});
@@ -117,49 +118,20 @@ class _StaffScreenState extends State<StaffScreen> {
               _dbService.isOnline ? Icons.cloud_done : Icons.cloud_off,
               color: _dbService.isOnline ? Colors.white : Colors.red.shade100,
             ),
-            onPressed: () async {
-              // Check connectivity status when icon is pressed
-              bool isOnline = await _dbService.checkConnectivity();
-              
-              if (isOnline) {
-                _syncService.syncData();
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Row(
-                      children: [
-                        const Icon(Icons.sync, color: Colors.white),
-                        const SizedBox(width: 12),
-                        const Text('Syncing data with server...'),
-                      ],
-                    ),
-                    backgroundColor: theme.colorScheme.primary,
-                    behavior: SnackBarBehavior.floating,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                );
-              } else {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Row(
-                      children: [
-                        const Icon(Icons.signal_wifi_off, color: Colors.white),
-                        const SizedBox(width: 12),
-                        const Expanded(
-                          child: Text('You are currently offline. Changes will be synced when online.'),
-                        ),
-                      ],
-                    ),
-                    backgroundColor: Colors.orange.shade800,
-                    behavior: SnackBarBehavior.floating,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                );
-              }
-            },
+            onPressed: _syncNow,
+          ),
+          // Debug button
+          IconButton(
+            icon: const Icon(
+              Icons.bug_report,
+              color: Colors.white70,
+            ),
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const DebugDatabaseScreen(),
+              ),
+            ).then((_) => _loadStaff()),
           ),
         ],
       ),
@@ -329,7 +301,7 @@ class _StaffScreenState extends State<StaffScreen> {
                                     const SizedBox(height: 4),
                                     Row(
                                       children: [
-                                        _getSyncStatusIcon(staff.syncStatus),
+                                        _buildSyncStatus(staff),
                                         const SizedBox(width: 4),
                                         Text(
                                           _getSyncStatusText(staff.syncStatus),
@@ -392,18 +364,146 @@ class _StaffScreenState extends State<StaffScreen> {
     }
   }
 
-  Widget _getSyncStatusIcon(SyncStatus status) {
-    switch (status) {
+  Widget _buildSyncStatus(Staff staff) {
+    final theme = Theme.of(context);
+    
+    Widget icon;
+    String tooltip;
+    
+    switch (staff.syncStatus) {
       case SyncStatus.synced:
-        return const Icon(Icons.check_circle, color: Colors.green, size: 16);
+        icon = Icon(Icons.cloud_done, size: 16, color: Colors.green);
+        tooltip = 'Synced with server';
+        break;
       case SyncStatus.created:
-        return const Icon(Icons.add_circle, color: Colors.orange, size: 16);
+        icon = InkWell(
+          onTap: () => _forceSyncSingleRecord(staff),
+          child: Icon(Icons.cloud_upload, size: 16, color: Colors.orange),
+        );
+        tooltip = 'Created locally, tap to force sync';
+        break;
       case SyncStatus.updated:
-        return const Icon(Icons.update, color: Colors.orange, size: 16);
+        icon = InkWell(
+          onTap: () => _forceSyncSingleRecord(staff),
+          child: Icon(Icons.update, size: 16, color: Colors.orange),
+        );
+        tooltip = 'Updated locally, tap to force sync';
+        break;
       case SyncStatus.deleted:
-        return const Icon(Icons.highlight_off, color: Colors.red, size: 16);
-      default:
-        return const SizedBox.shrink();
+        icon = InkWell(
+          onTap: () => _forceSyncSingleRecord(staff),
+          child: Icon(Icons.cloud_off, size: 16, color: Colors.red),
+        );
+        tooltip = 'Marked for deletion, tap to force sync';
+        break;
+    }
+    
+    return Tooltip(
+      message: tooltip,
+      child: icon,
+    );
+  }
+
+  Future<void> _forceSyncSingleRecord(Staff staff) async {
+    if (!_dbService.isOnline) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('You are offline. Cannot sync now.'),
+          backgroundColor: Colors.orange,
+        ),
+      );
+      return;
+    }
+    
+    // Show syncing indicator
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            SizedBox(
+              width: 20, 
+              height: 20,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+              ),
+            ),
+            SizedBox(width: 10),
+            Text('Syncing ${staff.name}...'),
+          ],
+        ),
+        duration: Duration(seconds: 1),
+      ),
+    );
+    
+    // Force sync this specific record
+    final success = await _syncService.forceSyncRecord(staff);
+    
+    if (mounted) {
+      if (success) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Successfully synced ${staff.name}'),
+            backgroundColor: Colors.green,
+          ),
+        );
+        // Refresh the list
+        _loadStaff();
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to sync ${staff.name}'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _syncNow() async {
+    if (!_dbService.isOnline) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('You are offline. Changes will sync when online.'),
+          backgroundColor: Colors.orange,
+        ),
+      );
+      return;
+    }
+    
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            CircularProgressIndicator(
+              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+              strokeWidth: 2,
+            ),
+            SizedBox(width: 10),
+            Text('Syncing data...'),
+          ],
+        ),
+        duration: Duration(seconds: 2),
+      ),
+    );
+    
+    await _syncService.syncData();
+    await _loadStaff(); // Refresh the list
+    
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Row(
+            children: [
+              Icon(Icons.check_circle, color: Colors.white),
+              SizedBox(width: 10),
+              Text('Sync completed'),
+            ],
+          ),
+          backgroundColor: Colors.green,
+          duration: Duration(seconds: 2),
+        ),
+      );
     }
   }
 

@@ -5,7 +5,7 @@ class User {
   final String accessToken;
   final String refreshToken;
   final DateTime expiresAt;
-
+  final String idToken;
   User({
     required this.id,
     required this.displayName,
@@ -13,6 +13,7 @@ class User {
     required this.accessToken,
     required this.refreshToken,
     required this.expiresAt,
+    required this.idToken,
   });
 
   bool get isTokenExpired => DateTime.now().isAfter(expiresAt);
@@ -25,6 +26,7 @@ class User {
       'accessToken': accessToken,
       'refreshToken': refreshToken,
       'expiresAt': expiresAt.toIso8601String(),
+      'idToken': idToken,
     };
   }
 
@@ -36,6 +38,7 @@ class User {
       accessToken: json['accessToken'],
       refreshToken: json['refreshToken'],
       expiresAt: DateTime.parse(json['expiresAt']),
+      idToken: json['idToken'],
     );
   }
 } 
