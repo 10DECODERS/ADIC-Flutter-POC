@@ -125,21 +125,56 @@ class SyncService {
 
   Future<void> _fetchRemoteData() async {
     try {
+      // 1. Fetch all staff from the remote server
       final remoteStaff = await _apiService.fetchAllStaff();
+      final remoteServerIds = remoteStaff.map((s) => s.serverId).where((id) => id != null).cast<int>().toSet();
+      print('[SyncService._fetchRemoteData] Received ${remoteStaff.length} records from API. Server IDs: ${remoteServerIds}');
+
+      // 2. Get all local staff that are synced and have a server ID
+      final localSyncedStaff = await _dbService.getSyncedStaffWithServerIds();
+      print('[SyncService._fetchRemoteData] Found ${localSyncedStaff.length} synced local records with server IDs.');
+
+      // 3. Identify and delete local records that are no longer on the server
+      List<int> idsToDeleteLocally = [];
+      for (final localStaff in localSyncedStaff) {
+        if (localStaff.serverId != null && !remoteServerIds.contains(localStaff.serverId)) {
+          print('[SyncService._fetchRemoteData] Local record (ID: ${localStaff.id}, ServerID: ${localStaff.serverId}) no longer exists on server. Marking for deletion.');
+          idsToDeleteLocally.add(localStaff.id);
+        }
+      }
       
+      // Perform deletions
+      if (idsToDeleteLocally.isNotEmpty) {
+        print('[SyncService._fetchRemoteData] Deleting ${idsToDeleteLocally.length} local records...');
+        for (final idToDelete in idsToDeleteLocally) {
+          // Use deleteStaff directly - it handles marking as deleted or actual deletion based on online status and serverId presence
+          await _dbService.deleteStaff(idToDelete);
+        }
+        print('[SyncService._fetchRemoteData] Finished deleting local records.');
+      }
+
+      // 4. Process the remote staff list to add new or update existing local records
       for (var staff in remoteStaff) {
+        print('[SyncService._fetchRemoteData] Processing remote staff: ID=${staff.serverId}, Name=${staff.name}');
+        
         if (staff.serverId == null) {
-          print('Warning: Remote staff record has null serverId: ${staff.name}');
+          print('[SyncService._fetchRemoteData] Warning: Remote staff record has null serverId: ${staff.name}');
           continue;
         }
         
         final localStaff = await _dbService.getStaffByServerId(staff.serverId!);
+        print('[SyncService._fetchRemoteData] Local staff found for serverId ${staff.serverId}: ${localStaff != null}');
         
         if (localStaff == null) {
           // New record from the server
           staff.syncStatus = SyncStatus.synced; // Mark as synced
-          await _dbService.saveStaff(staff);
-          print('Saved new staff from server: ${staff.name}');
+          print('[SyncService._fetchRemoteData] Attempting to save new staff: ${staff.toJson()}');
+          try {
+            final savedId = await _dbService.saveStaff(staff);
+            print('[SyncService._fetchRemoteData] Successfully saved new staff with local ID: $savedId');
+          } catch (e) {
+            print('[SyncService._fetchRemoteData] Error saving new staff (serverId: ${staff.serverId}): $e');
+          }
         } else {
           // For any record that exists on server, update its local data
           // and mark as synced regardless of current sync status
@@ -150,10 +185,13 @@ class SyncService {
           localStaff.phone = staff.phone;
           localStaff.joinDate = staff.joinDate;
           
-          // Always mark as synced if it exists on the server
-          localStaff.syncStatus = SyncStatus.synced;
+          // First, persist the updated data fields
+          await _dbService.updateStaff(localStaff); 
+          
+          // Then, explicitly mark the record as synced since the data came from the server
           await _dbService.markAsSynced(localStaff.id);
-          print('Updated and marked as synced: ${staff.name}');
+          
+          print('Updated local record and marked as synced: ${staff.name}');
         }
       }
     } catch (e) {

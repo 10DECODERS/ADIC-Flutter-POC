@@ -163,6 +163,18 @@ class DatabaseService {
     });
   }
 
+  // Add method to get synced staff with server IDs
+  Future<List<Staff>> getSyncedStaffWithServerIds() async {
+    return await _isar.staffs
+        .where()
+        .filter()
+        .syncStatusEqualTo(SyncStatus.synced)
+        .and()
+        .not()
+        .serverIdIsNull()
+        .findAll();
+  }
+
   // Add method to purge all staff records (for debugging)
   Future<void> deleteAllStaff() async {
     await _isar.writeTxn(() async {

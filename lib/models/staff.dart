@@ -46,8 +46,8 @@ class Staff {
     return Staff(
       serverId: json['id'],
       name: json['name'],
-      position: json['position'],
-      department: json['department'],
+      position: json['position'] ?? '',
+      department: json['department'] ?? '',
       email: json['email'],
       phone: json['phone'] ?? '',
       joinDate: joinDate,
