@@ -500,7 +500,7 @@ class _StaffScreenState extends State<StaffScreen> {
               Text('Sync completed'),
             ],
           ),
-          backgroundColor: Colors.green,
+          backgroundColor: Colors.teal.shade700,
           duration: Duration(seconds: 2),
         ),
       );
@@ -525,7 +525,7 @@ class _StaffScreenState extends State<StaffScreen> {
               children: [
                 CircleAvatar(
                   radius: 32,
-                  backgroundColor: Colors.blue,
+                  backgroundColor: Colors.teal.shade700,
                   child: Text(
                     staff.name.isNotEmpty ? staff.name[0].toUpperCase() : '?',
                     style: const TextStyle(
@@ -670,12 +670,12 @@ class _StaffScreenState extends State<StaffScreen> {
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: Colors.blue.shade100,
+              color: Colors.teal.shade100,
               borderRadius: BorderRadius.circular(8),
             ),
             child: Icon(
               icon,
-              color: Colors.blue,
+              color: Colors.teal.shade700,
               size: 20,
             ),
           ),
@@ -718,12 +718,12 @@ class _StaffScreenState extends State<StaffScreen> {
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: Colors.blue.shade100,
+              color: Colors.teal.shade100,
               borderRadius: BorderRadius.circular(8),
             ),
             child: Icon(
               icon,
-              color: Colors.blue,
+              color: Colors.teal.shade700,
               size: 20,
             ),
           ),
@@ -743,7 +743,7 @@ class _StaffScreenState extends State<StaffScreen> {
                   value.isNotEmpty ? value : 'Not specified',
                   style: const TextStyle(
                     fontSize: 15,
-                    color: Colors.blue,
+                    color: Colors.teal,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -757,7 +757,7 @@ class _StaffScreenState extends State<StaffScreen> {
               padding: EdgeInsets.zero,
               icon: Icon(
                 label == 'Email' ? Icons.email : Icons.phone,
-                color: Colors.blue,
+                color: Colors.teal.shade700,
                 size: 20,
               ),
               onPressed: onTap,
