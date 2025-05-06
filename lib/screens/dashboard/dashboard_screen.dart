@@ -1,3 +1,4 @@
+import 'package:adic_poc/services/telemetry_service.dart';
 import 'package:flutter/material.dart';
 
 class DashboardScreen extends StatelessWidget {
@@ -273,8 +274,13 @@ class DashboardScreen extends StatelessWidget {
               child: ElevatedButton.icon(
                 icon: const Icon(Icons.visibility_outlined, size: 18),
                 label: const Text('View Details'),
-                onPressed: () {
-                  // TODO: Implement View Details action
+                onPressed: () async {
+                  try{
+                    throw Exception("App is crashed manually");
+                  } catch (e, stackTrace){
+                   await TelemetryService().logError(e.toString(), stackTrace);
+                   rethrow;
+                  }
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.teal.shade400, // Keep this specific shade for this button

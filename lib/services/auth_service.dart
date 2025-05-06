@@ -12,11 +12,9 @@ class AuthService {
   
   // Platform-specific redirect URLs
   static String get redirectUrl {
-    if (Platform.isAndroid) {
-      return 'msauth://com.example.flutter_application/auth';
-    } else if (Platform.isIOS) {
-      return 'msauth://com.example.flutter_application/auth';
-    } else {
+    if (Platform.isAndroid || Platform.isIOS) {
+      return 'msauth://com.example.adic_poc/auth';
+    }else {
       return 'http://localhost';
     }
   }

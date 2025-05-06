@@ -29,14 +29,12 @@ class AuthProvider with ChangeNotifier {
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
-
     try {
       final bool success = await _authService.login();
       
       if (!success) {
         _errorMessage = 'Login failed. Please try again.';
       }
-      
       _isLoading = false;
       notifyListeners();
       return success;

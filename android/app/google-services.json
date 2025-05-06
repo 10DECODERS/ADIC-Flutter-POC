@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "135000291992",
+    "project_id": "adic-94cf0",
+    "storage_bucket": "adic-94cf0.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:135000291992:android:4021a200f42a54c1a2eeed",
+        "android_client_info": {
+          "package_name": "com.example.adic_poc"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBhS0j_zPK9l35QU4RM5G61aeAuv5KySfA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
