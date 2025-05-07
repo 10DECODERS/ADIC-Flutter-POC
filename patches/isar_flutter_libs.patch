@@ -1,0 +1,11 @@
+diff -ruN /var/folders/rh/zt93sgw56kd3qyddcgsbgdsw0000gn/T/isar_flutter_libs/android/build.gradle /Users/kirankumar/.pub-cache/hosted/pub.dev/isar_flutter_libs-3.1.0+1/android/build.gradle
+--- /var/folders/rh/zt93sgw56kd3qyddcgsbgdsw0000gn/T/isar_flutter_libs/android/build.gradle	2025-04-29 15:19:50
++++ /Users/kirankumar/.pub-cache/hosted/pub.dev/isar_flutter_libs-3.1.0+1/android/build.gradle	2025-04-29 15:21:06
+@@ -22,6 +22,7 @@
+ apply plugin: 'com.android.library'
+ 
+ android {
++    namespace 'dev.isar.isar_flutter_libs'
+     compileSdkVersion 30
+ 
+     defaultConfig {
