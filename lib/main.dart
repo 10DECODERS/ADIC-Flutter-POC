@@ -1,6 +1,8 @@
 import 'dart:ui';
 
 import 'package:adic_poc/services/telementry_service.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'providers/auth_provider.dart';
@@ -18,7 +20,32 @@ import 'services/sync_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
+
+  await Firebase.initializeApp();
+
+  NotificationSettings settings = await FirebaseMessaging.instance.requestPermission(
+    alert: true,
+    badge: true,
+    sound: true,
+  );
+
+  print('🔔 User granted permission: ${settings.authorizationStatus}');
+
+  FirebaseMessaging messaging = FirebaseMessaging.instance;
+  String? token = await messaging.getToken();
+  print("🔑 FCM Token: $token");
+
+  // 🔔 Foreground message handler
+  FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+    print('📩 Message received in foreground: ${message.notification?.title}');
+  });
+
+  // 📬 Background message handler
+  FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+    print('🟢 App opened from push: ${message.notification?.title}');
+  });
+
+
   // Initialize database
   final databaseService = DatabaseService();
   await databaseService.init();
