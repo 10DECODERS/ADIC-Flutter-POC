@@ -13,7 +13,7 @@ class AuthService {
   // Platform-specific redirect URLs
   static String get redirectUrl {
     if (Platform.isAndroid) {
-      return 'msauth://com.example.flutter_application/auth';
+      return 'msauth://com.example.adic_poc/auth';
     } else if (Platform.isIOS) {
       return 'msauth://com.example.flutter_application/auth';
     } else {
@@ -117,6 +117,7 @@ class AuthService {
           promptValues: ['login'],
         ),
       );
+      print(result);
       
       if (result != null) {
         print("ID Token: ${result.idToken}");
@@ -133,7 +134,9 @@ class AuthService {
       }
       
       return false;
-    } catch (e) {
+    } catch (e, stackTrace) {
+      print('Login Error: $e');
+      print('StackTrace: $stackTrace');
       return false;
     }
   }

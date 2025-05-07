@@ -1,3 +1,6 @@
+import 'dart:ui';
+
+import 'package:adic_poc/services/telementry_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'providers/auth_provider.dart';
@@ -23,6 +26,15 @@ void main() async {
   // Initialize sync service
   final syncService = SyncService();
   syncService.init();
+
+  FlutterError.onError = (FlutterErrorDetails details) {
+    TelemetryService().logError(details.exceptionAsString(), details.stack);
+  };
+
+  PlatformDispatcher.instance.onError = (Object error, StackTrace stack) {
+    TelemetryService().logError(error.toString(), stack);
+    return true;
+  };
   
   runApp(const MyApp());
 }
@@ -59,6 +71,7 @@ class MyApp extends StatelessWidget {
             unselectedItemColor: Colors.grey.shade600,
           ),
         ),
+        debugShowCheckedModeBanner: false,
         initialRoute: '/',
         routes: {
           '/': (context) => const SplashScreen(),
