@@ -7,7 +7,7 @@ import '../models/user.dart';
 
 class AuthService {
   // Azure AD OAuth settings - replace with your values
-  static const String clientId = '4166272d-3aac-4f37-a4be-ad27df98cbe1';
+  static const String clientId = 'c31354e9-423e-4122-ae50-b2fd7e8472ae';
   static const String tenantId = '4649f97a-c37c-49ae-98c9-a1981a56f28b';
   
   // Platform-specific redirect URLs

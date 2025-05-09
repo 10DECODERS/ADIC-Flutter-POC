@@ -1,5 +1,4 @@
 import 'dart:ui';
-
 import 'package:adic_poc/services/telementry_service.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -18,9 +17,9 @@ import 'screens/settings_screen.dart';
 import 'services/database_service.dart';
 import 'services/sync_service.dart';
 
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
   await Firebase.initializeApp();
 
   NotificationSettings settings = await FirebaseMessaging.instance.requestPermission(
@@ -32,25 +31,53 @@ void main() async {
   print('🔔 User granted permission: ${settings.authorizationStatus}');
 
   FirebaseMessaging messaging = FirebaseMessaging.instance;
-  String? token = await messaging.getToken();
-  print("🔑 FCM Token: $token");
 
-  // 🔔 Foreground message handler
+  if (settings.authorizationStatus == AuthorizationStatus.authorized) {
+    // ✅ Wait until the APNs token is set
+    String? apnsToken;
+    int attempts = 0;
+    while ((apnsToken = await messaging.getAPNSToken()) == null && attempts < 10) {
+      print("⌛ Waiting for APNs token...");
+      await Future.delayed(Duration(seconds: 1));
+      attempts++;
+    }
+
+    if (apnsToken != null) {
+      print("📲 APNs Token received: $apnsToken");
+      String? fcmToken = await messaging.getToken();
+      print("🔑 FCM Token: $fcmToken");
+
+      if (fcmToken != null) {
+        const connectionString = 'YOUR_AZURE_CONNECTION_STRING';
+        const hubName = 'YOUR_NOTIFICATION_HUB_NAME';
+
+        // final azHub = AzureNotificationHub(
+        //
+        // )
+        //
+        // await azHub.register(token: fcmToken);
+      }
+    } else {
+      print("❌ APNs token not set. Could not retrieve FCM token.");
+    }
+  } else {
+    print("❌ Notification permission not granted.");
+  }
+
+  // 🔔 Foreground handler
   FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-    print('📩 Message received in foreground: ${message.notification?.title}');
+    print('📩 Message in foreground: ${message.notification?.title}');
   });
 
-  // 📬 Background message handler
+  // 📬 Background notification tap handler
   FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-    print('🟢 App opened from push: ${message.notification?.title}');
+    print('🟢 Opened from push: ${message.notification?.title}');
   });
 
-
-  // Initialize database
+  // 🛠 Initialize other services
   final databaseService = DatabaseService();
   await databaseService.init();
-  
-  // Initialize sync service
+
   final syncService = SyncService();
   syncService.init();
 
@@ -62,7 +89,7 @@ void main() async {
     TelemetryService().logError(error.toString(), stack);
     return true;
   };
-  
+
   runApp(const MyApp());
 }
 
